@@ -2,7 +2,7 @@ from typing import List, Tuple
 from pathlib import Path
 from time import time
 import cv2
-
+from datetime import datetime
 
 def carcascade(fn: str, outdir: Path, trainfn: Path,
                res: Tuple[int, int], verbose: bool=False) -> List[int]:
@@ -12,8 +12,9 @@ def carcascade(fn: str, outdir: Path, trainfn: Path,
         raise FileNotFoundError(str(trainfn))
 
     if outdir:
+        outdir = Path(outdir).expanduser() / datetime.now().isoformat()[:-10]
         print('saving highlighted video previews to', outdir)
-        outdir = Path(outdir).expanduser()
+        outdir.mkdir()
 
     if not fn.startswith('/dev'):
         fn = Path(fn).expanduser()
