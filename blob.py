@@ -6,6 +6,8 @@ import numpy as np
 import skimage.feature as skif
 from matplotlib.pyplot import figure, draw, pause
 import cv2
+from typing import Tuple
+from datetime import datetime
 
 P = {'mindist': 3,
      'minarea': 10,
@@ -16,8 +18,11 @@ def main():
     p = ArgumentParser()
     p.add_argument('infn', help='HDF5 motion file to analyze')
     p.add_argument('-cv2', help='use openCV', action='store_true')
+    p.add_argument('-wvid', help='write video output filename')
+    p.add_argument('-wcount', help='write blob count stem', default='counts')
     p = p.parse_args()
 
+    writevid = p.wvid is not None
     fn = Path(p.infn).expanduser()
 
     with h5py.File(fn, 'r') as f:
@@ -27,16 +32,20 @@ def main():
 
     B = None
     ax = None
+    hv = None
     if not p.cv2:
         ax = figure(1).gca()
     else:
         B = setupblob(P)
         bmot = bmot.astype(np.uint8) * 255
-        fourcc = cv2.VideoWriter_fourcc(*'FFV1')
-        hv = cv2.VideoWriter(str(fn.parent/'cv2final.avi'), fourcc,
-                             fps=10,
-                             frameSize=(30, 41))
+        if writevid:
+            fourcc = cv2.VideoWriter_fourcc(*'FFV1')
+            hv = cv2.VideoWriter(str(fn.parent/p.wvid), fourcc,
+                                 fps=10,
+                                 frameSize=(30, 41))
 
+    countfn = fn.parent/p.wcount
+    Ncount = []
     for i, m in enumerate(bmot):
 
         if ax is not None:
@@ -45,20 +54,32 @@ def main():
 
             sblob(m, ax)
         else:
-            final, nkey, kpsize = cv2blob(mot[i]*2, m, B)
+            final, N = cv2blob(mot[i]*2, m, B)
             cv2.imshow('result', final)
-            hv.write(final)
+            if writevid:
+                hv.write(final)
+
             cv2.waitKey(1)
 
+        Ncount.append(N)
+
+        if i and not i % 500:
+            countfn = fn.parent/(p.wcount + datetime.now().isoformat()[:-7] + '.h5')
+            with h5py.File(countfn, 'w') as f:
+                f['count'] = Ncount
+                f['index'] = i
+            Ncount = []
+
     if ax is None:
-        hv.release()
+        if hv:
+            hv.release()
         cv2.destroyAllWindows()
 
 
-def cv2blob(img: np.ndarray, motion: np.ndarray, B):
+def cv2blob(img: np.ndarray, motion: np.ndarray, B) -> Tuple[np.ndarray, int]:
     keypoints = B.detect(motion)
     nkey = len(keypoints)
-    kpsize = np.asarray([k.size for k in keypoints])
+    # kpsize = [k.size for k in keypoints]
     final = img.copy()  # is the .copy necessary?
 
     final = cv2.drawKeypoints(img, keypoints, outImage=final,
@@ -69,7 +90,7 @@ def cv2blob(img: np.ndarray, motion: np.ndarray, B):
                 fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=0.8,
                 color=(0, 255, 0), thickness=1)
 
-    return final, nkey, kpsize
+    return final, nkey
 
 
 def setupblob(param: dict):
