@@ -4,6 +4,7 @@ from time import time
 import cv2
 from datetime import datetime
 
+
 def carcascade(fn: str, outdir: Path, trainfn: Path,
                res: Tuple[int, int], verbose: bool=False) -> List[int]:
 

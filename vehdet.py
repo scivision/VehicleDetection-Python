@@ -10,6 +10,7 @@ from pathlib import Path
 
 R = Path(__file__).parent
 
+
 def main():
     p = ArgumentParser()
     p.add_argument('fn', help='filename or camera device handle')

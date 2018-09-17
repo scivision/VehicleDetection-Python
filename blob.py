@@ -26,7 +26,7 @@ def main():
     fn = Path(p.infn).expanduser()
 
     with h5py.File(fn, 'r') as f:
-        mot = np.rot90(f['motion'][1025:,...].astype(np.uint8), axes=(1,2))
+        mot = np.rot90(f['motion'][1025:, ...].astype(np.uint8), axes=(1, 2))
 
     bmot = mot > 15
 
