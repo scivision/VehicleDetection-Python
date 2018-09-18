@@ -13,6 +13,7 @@ def main():
     p.add_argument('mthres', help='motion threshold', type=int)
     p.add_argument('-o', '--outfn', help='write blob count stem')
     p.add_argument('-v', '--verbose', help='show debug plots', action='store_true')
+    p.add_argument('-s', help='preview save name')
     p = p.parse_args()
 
     verbose = p.verbose
@@ -26,7 +27,7 @@ def main():
 
     countfn = fn.parent/p.outfn if p.outfn else None
     if verbose:
-        fg = figure()
+        fg = figure(figsize=(8, 8))
         ax1, ax2 = fg.subplots(2, 1)
         fg.suptitle('FFT-based approach - no OpenCV')
     else:
@@ -49,6 +50,9 @@ def main():
                 f['count'] = Ncount
                 f['index'] = i
             Ncount = []
+
+        if p.s:
+            fg.savefig(p.s+f'{i:04d}.png', bbox_inches='tight', dpi=100)
 
 
 def spatial_discrim(mot: np.ndarray, ax1=None, ax2=None) -> int:
@@ -92,7 +96,7 @@ def spatial_discrim(mot: np.ndarray, ax1=None, ax2=None) -> int:
         ax1.axhline(ilanes[1][1], color='orange', linestyle='--')
 
         draw()
-        pause(0.1)
+        pause(0.01)
 
     return N1 + N2
 
