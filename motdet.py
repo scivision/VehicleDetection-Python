@@ -12,6 +12,7 @@ import os
 def main():
     p = ArgumentParser()
     p.add_argument('odir', help='output directory')
+    p.add_argument('duration', help='record time length (seconds)', type=float)
     p.add_argument('-r', '--resolution', nargs=2, type=int, default=(640, 480))
     p.add_argument('-fps', type=int, default=30)
     p = p.parse_args()
@@ -32,12 +33,13 @@ def main():
             camera.resolution = res
             camera.framerate = p.fps
             camera.start_recording(str(vidfn), format='h264', motion_output=stream)
-            camera.wait_recording(120)
+            camera.wait_recording(p.duration)
             camera.stop_recording()
 
             with h5py.File(motfn, 'w') as f:
                 imgs = stream.array
                 f['motion'] = np.hypot(imgs['x'], imgs['y'])
+                f['timestamp'] = datetime.now()
 
 
 if __name__ == '__main__':
