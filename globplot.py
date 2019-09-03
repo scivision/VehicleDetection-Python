@@ -6,19 +6,19 @@ import h5py
 from pathlib import Path
 from matplotlib.pyplot import figure, show
 
-stem = '~/data/ec463/'
+stem = "~/data/ec463/"
 
 
 def main():
     path = Path(stem).expanduser()
-    flist = sorted(path.glob('count*.h5'))
+    flist = sorted(path.glob("count*.h5"))
 
     N = []
     i = []
     for fn in flist:
-        with h5py.File(fn, 'r') as f:
-            N.extend(f['count'][:])
-            i.append(f['index'].value)
+        with h5py.File(fn, "r") as f:
+            N.extend(f["count"][:])
+            i.append(f["index"].value)
 
     ax = figure().gca()
     ax.plot(N)
@@ -26,5 +26,5 @@ def main():
     show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

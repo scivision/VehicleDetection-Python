@@ -1,7 +1,7 @@
 # Vehicle Detection with OpenCV
 
 Simple demo of vehicle detection with OpenCV cascade classifier.
-Tested with [OpenCV 3](https://www.scivision.co/install-opencv-python-windows/)
+Tested with [OpenCV 3](https://www.scivision.dev/install-opencv-python-windows/)
 
 
 ## Install
@@ -25,13 +25,16 @@ Omitting the `-q` allows live display, which is much slower--particularly on emb
 [data source](https://github.com/shaanhk/New-GithubTest)
 
 ### X11 Virtual Frame Buffer
+
 On systems without an X11 server, a virtual frame buffer can be used.
 This method is used in general where a program wants a display but doesn't have a video server.
+
 ```sh
 apt install xvfb
 ```
 
 then create a file `~/xvfb.sh`:
+
 ```bash
 #!/bin/bash
 Xvfb :99 -screen 0 1024x768x16 &
